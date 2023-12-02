@@ -32,15 +32,23 @@ func main() {
 		lines = append(lines, readeFile.Text())
 	}
 
+	partOne := partOne(lines)
+	fmt.Println(partOne)
+
+	partTwo := partTwo(lines)
+	fmt.Println(partTwo)
+}
+
+func partOne(lines []string) int {
 	var total int = 0
 	for idx, line := range lines {
 		values, isValid := getValidSets(line, idx+1)
 		if isValid {
 			total += values
 		}
-		fmt.Println("Game: ", idx+1, "isValid: ", isValid)
 	}
-	fmt.Println(total)
+
+	return total
 }
 
 func getValidSets(line string, idx int) (int, bool) {
@@ -59,7 +67,6 @@ func getValidSets(line string, idx int) (int, bool) {
 
 			setsCubes[cube[1]] = value
 			if setsCubes[cube[1]] > maxCount[cube[1]] {
-				fmt.Println(maxCount[cube[1]])
 				return idx, false
 			}
 		}
@@ -67,4 +74,38 @@ func getValidSets(line string, idx int) (int, bool) {
 	}
 
 	return idx, true
+}
+
+func partTwo(lines []string) int {
+	total := 0
+
+	for _, line := range lines {
+		var result = map[string]int{}
+		getPower(line, &result)
+		total += result["red"] * result["green"] * result["blue"]
+	}
+
+	return total
+}
+
+func getPower(line string, result *map[string]int) *map[string]int {
+	game := strings.Split(line, ": ")
+	sets := strings.Split(game[1], "; ")
+
+	for _, set := range sets {
+		cubes := strings.Split(set, ", ")
+
+		for _, color := range cubes {
+			cube := strings.Split(color, " ")
+			value, err := strconv.Atoi(cube[0])
+			if err != nil {
+				panic(err)
+			}
+
+			if (*result)[cube[1]] < value {
+				(*result)[cube[1]] = value
+			}
+		}
+	}
+	return result
 }

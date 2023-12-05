@@ -22,9 +22,7 @@ func main() {
 		lines = append(lines, readFile.Text())
 	}
 
-	result := parseLines(lines)
-	fmt.Println(result)
-
+	parseLines(lines)
 }
 
 func checkError(err error) {
@@ -33,9 +31,13 @@ func checkError(err error) {
 	}
 }
 
-func parseLines(lines []string) int {
+func parseLines(lines []string) {
 	var result int
-	for _, line := range lines {
+	var matches int
+
+	var played = make([]int, len(lines))
+	for idx, line := range lines {
+		played[idx] += 1
 		card := strings.Split(line, ": ")
 		numbers := strings.Split(card[1], " | ")
 
@@ -45,28 +47,44 @@ func parseLines(lines []string) int {
 		winnerNumbers := convertToNumber(wNumbers)
 		myNumbers := convertToNumber(mNumbers)
 
-		var matches int
-		points := 0
+		points, totalMatches := getWinnerPoints(winnerNumbers, myNumbers)
+		result += points
+		matches += totalMatches
 
-		for _, mNum := range myNumbers {
-			for _, wNum := range winnerNumbers {
-				if mNum == wNum {
-					//fmt.Println("Match", mNum, wNum)
-					matches++
-					if matches >= 3 {
-						points *= 2
-					} else {
-						points++
-					}
-					fmt.Println("Points", points)
+
+		for i := 0; i < totalMatches; i++ {
+			played[idx+i+1] += played[idx]
+		}
+	}
+
+	copies := 0
+	for _, plays := range played {
+		copies += plays
+	}
+
+	fmt.Println(result)
+	fmt.Println(copies)
+}
+
+func getWinnerPoints(winnerNumbers []int, myNumbers []int) (int, int) {
+	var matches int
+	points := 0
+
+	for _, mNum := range myNumbers {
+		for _, wNum := range winnerNumbers {
+			if mNum == wNum {
+				matches++
+				if matches >= 3 {
+					points *= 2
+				} else {
+					points++
 				}
 			}
 		}
-
-		result += points
 	}
 
-	return result
+
+return points, matches
 }
 
 func convertToNumber(numbers []string) []int {

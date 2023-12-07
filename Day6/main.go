@@ -34,29 +34,42 @@ func checkError(err error) {
 func parseLines(lines []string) {
 	var times []int
 	var distances []int
+	var timeValue int
+	var distanceValue int
 	for _, line := range lines {
 		lineValue := strings.Split(line, ": ")
 		if lineValue[0] == "Time" {
 			time := strings.Split(lineValue[1], " ")
+			time2 := part2Parser(time)
 			times = convertToInt(time)
+			tValue, err := strconv.Atoi(time2)
+			checkError(err)
+			timeValue = tValue
 		}
 
 		if lineValue[0] == "Distance" {
 			distance := strings.Split(lineValue[1], " ")
+			distance2 := part2Parser(distance)
 			distances = convertToInt(distance)
+			dValue, err := strconv.Atoi(distance2)
+			checkError(err)
+			distanceValue = dValue
 		}
-
 	}
 
-	result := 1
+	resultPart1 := 1
 	for i := 0; i < len(times); i++ {
-		result *= part1(times[i], distances[i])
+		resultPart1 *= getResult(times[i], distances[i])
 	}
 
-	fmt.Println(result)
+	resultPart2 := getResult(timeValue, distanceValue)
+
+	fmt.Println("Part 1: ", resultPart1)
+	fmt.Println("Part 2: ", resultPart2)
+
 }
 
-func part1(time, distance int) int {
+func getResult(time, distance int) int {
 	result := 0
 	for i := 1; i < time; i++ {
 		if ((time - i) * i) > distance {
@@ -64,6 +77,13 @@ func part1(time, distance int) int {
 		}
 	}
 	return result
+}
+
+func part2Parser(values []string) string {
+	valueConcat := strings.Join(values, "")
+	value := strings.TrimSpace(valueConcat)
+
+	return value
 }
 
 func convertToInt(values []string) []int {
